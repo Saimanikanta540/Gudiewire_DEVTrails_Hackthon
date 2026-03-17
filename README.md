@@ -40,7 +40,36 @@ ClimateShield AI is an **AI-powered parametric insurance platform** that automat
 
 - No claim filing  
 - No waiting  
-- Instant payouts  
+- Instant payouts
+
+## 🌐 Community Protection Network (CPN)
+
+GigShield AI introduces a **community-driven insurance model** where gig workers strengthen the platform by bringing in their peers.
+
+Instead of treating referrals as just a way to earn money, we use them to build a **collective risk intelligence network**. As more workers join from the same area, the system becomes smarter, faster, and more accurate in predicting risks and processing claims.
+
+This means every new worker added to the network not only benefits individually but also improves the overall protection for the entire community.
+
+---
+
+### 🔷 How It Works
+
+- New workers receive **7 days of free insurance coverage** when they join  
+- They can invite fellow workers to join the platform  
+- As the network grows, **risk prediction improves**  
+- Workers receive benefits such as:
+  - Lower premiums  
+  - Faster claim processing  
+  - Increased payout coverage  
+
+---
+
+### 🔷 Why It Matters
+
+Traditional referral systems focus only on user growth.  
+GigShield AI transforms referrals into a **core part of the insurance system itself**.
+
+> The more workers participate, the stronger and smarter the protection becomes.
 
 ---
 
