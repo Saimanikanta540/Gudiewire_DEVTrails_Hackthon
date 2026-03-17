@@ -213,9 +213,9 @@ Our goal is to build **India’s first AI-driven income protection system**.
 
 ## 16. Team
 
-Team Name: [Your Team Name]  
+Team Name: [VisionX]  
 
 Members:
-- Member 1  
-- Member 2  
-- Member 3  
+- Pasumarthi Sai Manikanta  
+- Nagothu Varshitha  
+- Kandepi Sri Geethamrutha Varshini  
