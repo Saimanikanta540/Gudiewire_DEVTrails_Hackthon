@@ -2,7 +2,96 @@
 ### 🚀 AI-Powered Income Protection for India’s Gig Workforce  
 **“Because income shouldn’t depend on the weather.”**
 ---
+---
 
+## 💡 Our Solution – ClimateShield AI
+
+ClimateShield AI is an **AI-powered parametric insurance platform** that protects gig workers from income loss caused by real-world disruptions.
+
+- ❌ No claim filing  
+- ⏳ No waiting  
+- ⚡ Instant payouts  
+
+---
+
+## 🌐 Community Protection Network (CPN)
+
+ClimateShield AI introduces a **community-driven insurance model** where users strengthen the system by bringing others into the network.
+
+Instead of simple referrals, this creates a **collective risk intelligence system**.
+
+As more users join from the same area:
+- Predictions become more accurate  
+- Claims are processed faster  
+- Overall protection improves  
+
+Every new user contributes to making the system smarter and more reliable for everyone.
+
+---
+
+### 🔷 How It Works
+
+- New users receive **7 days of free insurance coverage**  
+- Users can invite others to join the platform  
+- As the network grows, prediction accuracy improves  
+
+### 🎯 Benefits
+
+- Lower premiums  
+- Faster claim processing  
+- Higher payout coverage  
+
+---
+
+### 🔷 Why It Matters
+
+Traditional referral systems focus only on user growth.  
+ClimateShield AI turns referrals into a **core part of the protection system itself**.
+
+> The stronger the network, the smarter the protection.
+
+---
+
+## 🧠 Core Concept – Digital Worker Profile
+
+Each user is represented as a **dynamic digital profile**:
+
+- Location  
+- Working hours  
+- Income patterns  
+- Risk exposure  
+
+This allows the system to personalize protection for every individual.
+
+---
+
+## 🔍 Risk Radar System
+
+The platform continuously monitors multiple layers of risk:
+
+### 🌦️ Environmental Risk
+- Heavy rain  
+- Heatwaves  
+- Floods  
+
+### 🚦 Urban Risk
+- Traffic congestion  
+- Road closures  
+
+### 🏛️ Social Risk
+- Curfews  
+- Strikes  
+
+---
+
+## 💰 Income Shield Mechanism
+
+The system protects **working hours, not assets**.
+
+### 📌 Formula:
+```text
+Payout = Lost Hours × Hourly Income
+```
 ## 📌 About the Project
 
 ClimateShield AI is designed to protect gig workers from income loss caused by real-world disruptions like weather, pollution, and urban conditions.
@@ -27,7 +116,7 @@ Instead of reacting late, the system:
 ## 💻 Frontend Setup (React)
 ```
 ```bash
-cd frontend
+cd prototype
 npm install
 npm start
 ```
