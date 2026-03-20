@@ -117,7 +117,7 @@ The system protects **working hours, not assets**.
 ### 📌 Formula:
 ```text
 Payout = Lost Hours × Hourly Income
-
+```
 ## 🤖 AI Risk Prediction Engine
 
 A **Risk Score (0–100)** is calculated using:
@@ -183,17 +183,16 @@ IF location ≠ registered work zone → flag as fraud
   ```bash
 - git clone https://github.com/Saimanikanta540/Gudiewire_DEVTrails_Hackthon.git
 - cd Gudiewire_DEVTrails_Hackthon
-   
+   ```
 ---
 
 # 🧩 6. Frontend Setup
 
 ```md
-## 💻 Frontend Setup (React)
-```bash
 cd prototype
 npm install
 npm start
+
 ```
 ## 🧠 How It Works
 
