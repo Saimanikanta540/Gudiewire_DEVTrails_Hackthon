@@ -19,7 +19,8 @@ Instead of reacting late, the system:
 
 We collected responses from gig workers to understand real challenges.
 
-![Survey Insights](./assets/survey_data.png)
+![Survey Insights](https://docs.google.com/spreadsheets/d/1Maz0-bvCnmyrtmo0M42io--oEnjRbMjp46eqgLOt2P4/edit?usp=sharing)
+
 
 ### 📌 Key Takeaways
 
