@@ -19,11 +19,9 @@ Instead of reacting late, the system:
 
 We collected responses from gig workers to understand real challenges.
 
-![Survey Insights](https://docs.google.com/spreadsheets/d/1Maz0-bvCnmyrtmo0M42io--oEnjRbMjp46eqgLOt2P4/edit?usp=sharing)
-
+🔗 View Survey Data: https://docs.google.com/spreadsheets/d/1Maz0-bvCnmyrtmo0M42io--oEnjRbMjp46eqgLOt2P4/edit?usp=sharing
 
 ### 📌 Key Takeaways
-
 - 85% face income loss due to weather  
 - 70% lose working hours during rain  
 - 60% affected by heatwaves  
