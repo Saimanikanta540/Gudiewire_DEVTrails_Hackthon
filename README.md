@@ -4,6 +4,32 @@
 ---
 ---
 
+## 📌 About the Project
+
+ClimateShield AI is designed to protect gig workers from income loss caused by real-world disruptions like weather, pollution, and urban conditions.
+
+Instead of reacting late, the system:
+- Predicts risks early  
+- Monitors real-time conditions  
+- Automatically compensates lost income  
+
+⚡ No claims. No delays. Fully automated.
+
+## 📊 User Feedback & Validation
+
+We collected responses from gig workers to understand real challenges.
+
+![Survey Insights](./assets/survey_data.png)
+
+### 📌 Key Takeaways
+
+- 85% face income loss due to weather  
+- 70% lose working hours during rain  
+- 60% affected by heatwaves  
+- 90% want income protection  
+
+These insights strongly validate the need for ClimateShield AI.
+
 ## 💡 Our Solution – ClimateShield AI
 
 ClimateShield AI is an **AI-powered parametric insurance platform** that protects gig workers from income loss caused by real-world disruptions.
@@ -151,16 +177,7 @@ To ensure fairness, the platform includes:
 ```text
 IF location ≠ registered work zone → flag as fraud
 ```
-## 📌 About the Project
 
-ClimateShield AI is designed to protect gig workers from income loss caused by real-world disruptions like weather, pollution, and urban conditions.
-
-Instead of reacting late, the system:
-- Predicts risks early  
-- Monitors real-time conditions  
-- Automatically compensates lost income  
-
-⚡ No claims. No delays. Fully automated.
 
 ## 📦 Clone Repository
   ```bash
