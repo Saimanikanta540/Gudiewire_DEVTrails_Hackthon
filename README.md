@@ -19,7 +19,7 @@ Instead of reacting late, the system:
 
 We collected responses from gig workers to understand real challenges.
 
-🔗 [View ClimateShield Survey Dataset](https://docs.google.com/spreadsheets/d/1Maz0-bvCnmyrtmo0M42io--oEnjRbMjp46eqgLOt2P4/edit?usp=sharing)
+🔗 [Survey Insights](https://docs.google.com/spreadsheets/d/1Maz0-bvCnmyrtmo0M42io--oEnjRbMjp46eqgLOt2P4/edit?usp=sharing)
 
 ### 📌 Key Takeaways
 - 85% face income loss due to weather  
