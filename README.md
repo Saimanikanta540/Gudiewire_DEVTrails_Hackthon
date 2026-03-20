@@ -173,7 +173,6 @@ Instead of reacting late, the system:
 
 ```md
 ## 💻 Frontend Setup (React)
-```
 ```bash
 cd prototype
 npm install
