@@ -1,14 +1,14 @@
 // User Profile Data
 export const userProfile = {
   id: 1,
-  name: "Rahul",
+  name: "Badari",
   role: "Delivery Partner",
-  city: "Hyderabad",
-  zone: "KPHB-North",
+  city: "ongole",
+  zone: "ongole",
   avatar: "👨‍💼",
-  dailyIncome: 800,
-  workHours: 9,
-  avgIncome: 750,
+  dailyIncome: 1100,
+  workHours: 14,
+  avgIncome: 1050,
   coveragePlan: "medium",
 };
 
