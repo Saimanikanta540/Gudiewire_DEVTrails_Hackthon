@@ -92,6 +92,65 @@ The system protects **working hours, not assets**.
 ```text
 Payout = Lost Hours × Hourly Income
 ```
+## 🤖 AI Risk Prediction Engine
+
+A **Risk Score (0–100)** is calculated using:
+
+- Weather patterns  
+- Pollution levels  
+- Location-based risk  
+
+### 📊 Example:
+
+| Worker | Risk Score | Premium |
+|--------|----------|--------|
+| User A | 65       | ₹40/week |
+| User B | 25       | ₹20/week |
+
+---
+
+## 💳 Weekly Pricing Model
+
+| Risk Level | Weekly Premium |
+|------------|---------------|
+| Low        | ₹20           |
+| Medium     | ₹40           |
+| High       | ₹60           |
+
+This aligns with the **weekly earning cycle of gig workers**.
+
+---
+
+## ⚡ Parametric Triggers
+
+| Event | Condition |
+|------|----------|
+| Heavy Rain | > 50mm |
+| Heatwave | > 42°C |
+| Pollution | AQI > 300 |
+| Curfew | Govt alert |
+
+### 🔄 When triggered:
+
+- System detects the event automatically  
+- Claim is generated instantly  
+- Payout is processed without delay  
+
+---
+
+## 🛡️ Fraud Detection System
+
+To ensure fairness, the platform includes:
+
+- 📍 GPS validation  
+- 📊 Activity tracking  
+- 🔁 Duplicate claim detection  
+
+### 📌 Example Rule:
+
+```text
+IF location ≠ registered work zone → flag as fraud
+```
 ## 📌 About the Project
 
 ClimateShield AI is designed to protect gig workers from income loss caused by real-world disruptions like weather, pollution, and urban conditions.
@@ -170,16 +229,20 @@ Weather API → AI Model → Backend
 
 # 🧩 12. Workflow
 
-```md
-## 🔄 Workflow
+User Registers
+      ↓
+AI Risk Profiling
+      ↓
+Weekly Premium Generated
+      ↓
+System Monitors APIs
+      ↓
+Trigger Detected
+      ↓
+Claim Auto Generated
+      ↓
+Instant Payout
 
-1. User registers  
-2. Risk profile created  
-3. Premium calculated  
-4. System monitors APIs  
-5. Trigger detected  
-6. Auto payout
-```
 ## 🧪 Tech Stack
 
 - React.js  
@@ -203,7 +266,7 @@ Perfect for demo presentations
 
 ## 👨‍💻 Team
 
-**Team Gudiewire**
+**Team VisionX**
 
 - Pasumarthi Sai Manikanta  
 - Nagothu Varshitha  
