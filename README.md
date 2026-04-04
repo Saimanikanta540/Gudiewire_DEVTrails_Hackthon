@@ -4,6 +4,30 @@
 ---
 ---
 
+## 🚀 Getting Started
+
+### 1. Download (Clone) the Repository
+```bash
+git clone https://github.com/Saimanikanta540/Gudiewire_DEVTrails_Hackthon.git
+cd Gudiewire_DEVTrails_Hackthon
+```
+
+### 2. Run the Project
+
+#### **Frontend**
+```bash
+cd prototype
+npm install
+npm run dev
+```
+
+#### **Backend**
+```bash
+cd server
+npm install
+npm run dev
+```
+
 ## 📌 About the Project
 
 ClimateShield AI is designed to protect gig workers from income loss caused by real-world disruptions like weather, pollution, and urban conditions.
@@ -210,21 +234,6 @@ IF location ≠ registered work zone → flag as fraud
 ```
 
 
-## 📦 Clone Repository
-  ```bash
-- git clone https://github.com/Saimanikanta540/Gudiewire_DEVTrails_Hackthon.git
-- cd Gudiewire_DEVTrails_Hackthon
-   ```
----
-
-# 🧩 6. Frontend Setup
-
-```md
-cd prototype
-npm install
-npm start
-
-```
 ## 🧠 How It Works
 
 1. Collects real-time data  
