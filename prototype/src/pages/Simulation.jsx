@@ -1,263 +1,160 @@
 import { Card, Button, AlertBanner } from "../components";
 import { simulationScenarios } from "../data/mockData";
+import { Play, CheckCircle, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { Zap, Cloud, AlertCircle } from "lucide-react";
+import { eventAPI } from "../api/apiClient";
 
 export function Simulation() {
-  const [simulating, setSimulating] = useState(false);
-  const [selectedScenario, setSelectedScenario] = useState(null);
+  const [activeScenario, setActiveScenario] = useState(null);
+  const [isSimulating, setIsSimulating] = useState(false);
   const [simulationResult, setSimulationResult] = useState(null);
-  const [claimStatus, setClaimStatus] = useState(null);
+  const user = JSON.parse(localStorage.getItem('user'));
 
-  const handleSimulate = (scenario) => {
-    setSelectedScenario(scenario);
-    setSimulating(true);
-    setClaimStatus("processing");
-
-    // Simulate steps
-    setTimeout(() => setClaimStatus("processing"), 500);
-    setTimeout(() => setClaimStatus("generated"), 1500);
-    setTimeout(() => setClaimStatus("verified"), 3000);
-    setTimeout(() => {
-      setClaimStatus("paid");
-      setSimulationResult({
-        lostHours: scenario.hourImpact,
-        hourlyRate: 80,
-        payout: scenario.hourImpact * 80,
-        bonus: Math.floor(scenario.hourImpact * 80 * 0.1),
-      });
-    }, 4500);
-  };
-
-  const resetSimulation = () => {
-    setSimulating(false);
-    setSelectedScenario(null);
+  const handleSimulate = async (scenario) => {
+    setIsSimulating(true);
+    setActiveScenario(scenario);
     setSimulationResult(null);
-    setClaimStatus(null);
+
+    try {
+      // Call backend to trigger parametric event
+      const res = await eventAPI.triggerEvent({
+        eventType: scenario.id.charAt(0).toUpperCase() + scenario.id.slice(1),
+        value: scenario.id === 'rain' ? 50 : 250, // Mock values
+        threshold: 20,
+        location: {
+          city: user.city || 'Hyderabad',
+          zone: user.zone || 'KPHB',
+          lat: 17.44,
+          lng: 78.34
+        },
+        description: `Simulated ${scenario.name} for Phase 2 demo.`
+      });
+
+      setSimulationResult({
+        success: true,
+        message: `Event triggered! ${res.data.claimsCount} claims automatically generated and processed.`,
+        details: res.data
+      });
+    } catch (err) {
+      console.error("Simulation failed", err);
+      setSimulationResult({
+        success: false,
+        message: "Simulation failed. Please check backend connection."
+      });
+    } finally {
+      setIsSimulating(false);
+    }
   };
 
   return (
-    <div className="space-y-6 pb-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Simulation Mode</h1>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold text-gray-900">Risk Simulation</h1>
         <p className="text-gray-600">
-          Test how ClimateShield AI protects you during different scenarios
+          Test our parametric triggers and zero-touch claim system by simulating external disruptions.
         </p>
       </div>
 
-      {/* Alert */}
-      <AlertBanner
-        type="info"
-        title="Simulation Mode Active"
-        message="These are practice simulations. No actual claims will be created."
-        persistent={true}
-      />
+      {simulationResult && (
+        <AlertBanner
+          type={simulationResult.success ? "success" : "error"}
+          title={simulationResult.success ? "Success" : "Error"}
+          message={simulationResult.message}
+        />
+      )}
 
-      {/* Scenario Selection */}
-      {!simulating && (
-        <div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            Choose a Scenario
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {simulationScenarios.map((scenario) => (
-              <Card
-                key={scenario.id}
-                variant="interactive"
-                className="cursor-pointer"
-                onClick={() => handleSimulate(scenario)}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {simulationScenarios.map((scenario) => (
+          <Card
+            key={scenario.id}
+            className={`cursor-pointer transition-all border-2 ${
+              activeScenario?.id === scenario.id
+                ? "border-blue-600 bg-blue-50"
+                : "border-transparent hover:border-gray-200"
+            }`}
+            onClick={() => setActiveScenario(scenario)}
+          >
+            <div className="flex flex-col items-center text-center p-4">
+              <span className="text-5xl mb-4">{scenario.icon}</span>
+              <h3 className="font-bold text-gray-900 mb-1">{scenario.name}</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Estimated impact: {scenario.hourImpact} hours
+              </p>
+              <div
+                className={`text-xs font-bold uppercase px-2 py-1 rounded mb-4 ${
+                  scenario.severity === "high"
+                    ? "bg-red-100 text-red-700"
+                    : scenario.severity === "medium"
+                    ? "bg-orange-100 text-orange-700"
+                    : "bg-blue-100 text-blue-700"
+                }`}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <span className="text-4xl">{scenario.icon}</span>
-                    <div>
-                      <h3 className="font-semibold text-gray-800">
-                        {scenario.name}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        Impact: ~{scenario.hourImpact}hrs
-                      </p>
-                      <div className="flex items-center gap-1 mt-1">
-                        <Zap className="w-3 h-3 text-orange-500" />
-                        <span className="text-xs text-gray-600 capitalize">
-                          {scenario.severity} Severity
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <Button size="sm" variant="primary">
-                      Simulate
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
+                {scenario.severity} Severity
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
 
-      {/* Simulation in Progress */}
-      {simulating && selectedScenario && (
-        <div className="space-y-6">
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200">
-            <div className="text-center">
-              <p className="text-sm font-semibold text-blue-600 mb-2">
-                SIMULATION IN PROGRESS
-              </p>
-              <p className="text-3xl mb-4">{selectedScenario.icon}</p>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                {selectedScenario.name} Detected
-              </h2>
+      {activeScenario && (
+        <Card className="bg-white border-blue-100">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-4">
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Scenario: {activeScenario.name}
+              </h3>
               <p className="text-gray-600">
-                ClimateShield AI is processing your claim...
+                This will trigger our parametric engine to detect {activeScenario.name.toLowerCase()} in your current zone.
+                If your policy covers this event, a claim will be auto-generated and paid instantly.
               </p>
             </div>
-          </Card>
-
-          {/* Status Steps */}
-          <Card>
-            <h3 className="font-semibold text-gray-800 mb-4">Claim Status</h3>
-            <div className="space-y-3">
-              {[
-                { step: "Event Detection", key: "processing" },
-                { step: "Claim Generated", key: "generated" },
-                { step: "Verification", key: "verified" },
-                { step: "Paid", key: "paid" },
-              ].map((item) => {
-                const isActive =
-                  claimStatus === item.key ||
-                  (claimStatus === "paid" &&
-                    ["processing", "generated", "verified", "paid"].includes(
-                      item.key
-                    ));
-                const isCompleted = claimStatus === "paid";
-
-                return (
-                  <div key={item.key} className="flex items-center gap-3">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
-                        isActive || isCompleted
-                          ? "bg-green-500 text-white scale-110"
-                          : "bg-gray-200 text-gray-600"
-                      }`}
-                    >
-                      {isCompleted ? "✓" : isActive ? "⏳" : "·"}
-                    </div>
-                    <span
-                      className={`font-semibold ${
-                        isActive || isCompleted
-                          ? "text-gray-800"
-                          : "text-gray-500"
-                      }`}
-                    >
-                      {item.step}
-                    </span>
-                  </div>
-                );
-              })}
+            <div className="flex gap-4">
+               <Button
+                variant="secondary"
+                onClick={() => {
+                  setActiveScenario(null);
+                  setSimulationResult(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={isSimulating}
+                onClick={() => handleSimulate(activeScenario)}
+                className="flex items-center gap-2"
+              >
+                {isSimulating ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Play className="w-4 h-4" />
+                )}
+                Run Simulation
+              </Button>
             </div>
-          </Card>
+          </div>
+        </Card>
+      )}
 
-          {/* Results - Show when completed */}
-          {simulationResult && (
-            <>
-              <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200">
-                <div className="text-center mb-6">
-                  <p className="text-sm font-semibold text-green-600 mb-2">
-                    ✅ CLAIM PROCESSED & PAID
-                  </p>
-                  <h3 className="text-2xl font-bold text-green-700">
-                    Payout Successful!
-                  </h3>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div className="bg-white rounded-lg p-4">
-                    <p className="text-sm text-gray-600 mb-1">Lost Working Hours</p>
-                    <p className="text-3xl font-bold text-gray-800">
-                      {simulationResult.lostHours} hrs
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-lg p-4">
-                    <p className="text-sm text-gray-600 mb-1">Hourly Rate</p>
-                    <p className="text-3xl font-bold text-gray-800">
-                      ₹{simulationResult.hourlyRate}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-lg p-6 border-2 border-green-300">
-                  <div className="text-center mb-4">
-                    <p className="text-sm text-gray-600 mb-2">Base Payout</p>
-                    <p className="text-4xl font-bold text-green-600">
-                      ₹{simulationResult.payout}
-                    </p>
-                  </div>
-                  <div className="border-t border-green-200 pt-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-gray-700">Community Bonus (10%)</span>
-                      <span className="font-semibold text-green-600">
-                        +₹{simulationResult.bonus}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-lg font-bold text-green-700 mt-3 pt-3 border-t border-green-200">
-                      <span>Total Payout</span>
-                      <span>₹{simulationResult.payout + simulationResult.bonus}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <p className="text-center text-sm text-gray-600 mt-4">
-                  💡 Amount will be transferred to your registered bank account
-                  within 24 hours
-                </p>
-              </Card>
-
-              {/* Key Insights */}
-              <Card>
-                <h3 className="font-semibold text-gray-800 mb-3">
-                  📊 Simulation Insights
-                </h3>
-                <ul className="space-y-2 text-sm text-gray-700">
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-600 font-bold">•</span>
-                    <span>
-                      At your current coverage level, {selectedScenario.name.toLowerCase()} events are
-                      fully covered.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-600 font-bold">•</span>
-                    <span>
-                      Upgrading to Premium would add accident coverage and 24/7
-                      support.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-600 font-bold">•</span>
-                    <span>
-                      Referral bonus: Get ₹200 for every successful referral
-                      (max ₹5,000/month).
-                    </span>
-                  </li>
-                </ul>
-              </Card>
-            </>
-          )}
-
-          {/* Reset Button */}
-          <div className="flex justify-center">
-            <Button
-              variant="secondary"
-              size="lg"
-              onClick={resetSimulation}
-            >
-              Run Another Simulation
-            </Button>
+      <div className="bg-blue-600 rounded-xl p-8 text-white">
+        <h2 className="text-2xl font-bold mb-4">How Zero-Touch Claims Work</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="space-y-2">
+            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center font-bold">1</div>
+            <h3 className="font-bold">Parametric Detection</h3>
+            <p className="text-blue-100 text-sm">Our AI monitors weather stations and AQI sensors in real-time across your work zones.</p>
+          </div>
+          <div className="space-y-2">
+            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center font-bold">2</div>
+            <h3 className="font-bold">Automated Verification</h3>
+            <p className="text-blue-100 text-sm">Once a threshold is crossed (e.g. &gt;10mm rain), the system verifies your policy coverage automatically.</p>
+          </div>
+          <div className="space-y-2">
+            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center font-bold">3</div>
+            <h3 className="font-bold">Instant Payout</h3>
+            <p className="text-blue-100 text-sm">Claim is generated, fraud checks run in milliseconds, and money is sent to your wallet immediately.</p>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

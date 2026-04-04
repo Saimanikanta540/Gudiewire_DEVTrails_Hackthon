@@ -1,14 +1,43 @@
 import { Card, AlertBanner, Button, ChartComponent } from "../components";
-import {
-  dashboardData,
-  weeklyEarningsData,
-  userProfile,
-} from "../data/mockData";
-import { TrendingUp, Umbrella, CheckCircle } from "lucide-react";
-import { useState } from "react";
+import { weeklyEarningsData } from "../data/mockData";
+import { TrendingUp, Umbrella, CheckCircle, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { analyticsAPI, policyAPI } from "../api/apiClient";
 
 export function Dashboard() {
   const [mode, setMode] = useState("live");
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(null);
+  const [policy, setPolicy] = useState(null);
+  const user = JSON.parse(localStorage.getItem('user'));
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [analyticsRes, policyRes] = await Promise.all([
+          analyticsAPI.getWorkerAnalytics(user._id || user.id),
+          policyAPI.getActivePolicy(user._id || user.id)
+        ]);
+        setData(analyticsRes.data);
+        setPolicy(policyRes.data);
+      } catch (err) {
+        console.error("Failed to fetch dashboard data", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [user._id, user.id]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  const riskLevel = data?.riskScore > 70 ? "High Risk" : data?.riskScore > 30 ? "Medium Risk" : "Low Risk";
 
   return (
     <div className="space-y-6 pb-8">
@@ -20,7 +49,7 @@ export function Dashboard() {
             onClick={() => setMode("live")}
             className={`px-4 py-2 rounded-lg font-medium transition-all ${
               mode === "live"
-                ? "bg-blue-600 text-white"
+                ? "bg-blue-600 text-white shadow-md"
                 : "bg-gray-200 text-gray-800 hover:bg-gray-300"
             }`}
           >
@@ -30,7 +59,7 @@ export function Dashboard() {
             onClick={() => setMode("simulation")}
             className={`px-4 py-2 rounded-lg font-medium transition-all ${
               mode === "simulation"
-                ? "bg-blue-600 text-white"
+                ? "bg-purple-600 text-white shadow-md"
                 : "bg-gray-200 text-gray-800 hover:bg-gray-300"
             }`}
           >
@@ -39,12 +68,22 @@ export function Dashboard() {
         </div>
       </div>
 
+      {/* Sandbox Warning Banner */}
+      {mode === "simulation" && (
+        <AlertBanner
+          type="info"
+          title="🧪 Sandbox Environment Active"
+          message="You are in Simulation Mode. Use this environment to safely trigger extreme weather events and test the zero-touch automated payout pipeline without affecting real financial ledgers."
+          persistent={true}
+        />
+      )}
+
       {/* Weather Alert */}
-      {dashboardData.weatherAlert.active && (
+      {data?.riskScore > 60 && mode === "live" && (
         <AlertBanner
           type="warning"
-          title={dashboardData.weatherAlert.message}
-          message={`Expected to impact your work for about ${dashboardData.weatherAlert.affectedHours} hours today`}
+          title="Heavy Rain Expected 🌧️"
+          message="Parametric triggers are active. Income loss will be automatically covered."
           persistent={true}
         />
       )}
@@ -57,9 +96,9 @@ export function Dashboard() {
             <div>
               <p className="text-gray-600 text-sm font-medium mb-2">Risk Score</p>
               <p className="text-4xl font-bold text-blue-600 mb-2">
-                {dashboardData.riskScore}
+                {data?.riskScore || 0}
               </p>
-              <p className="text-sm text-gray-600">{dashboardData.riskLevel}</p>
+              <p className="text-sm text-gray-600">{riskLevel}</p>
             </div>
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
               <span className="text-3xl">📊</span>
@@ -67,17 +106,17 @@ export function Dashboard() {
           </div>
         </Card>
 
-        {/* Today's Earnings Card */}
+        {/* Earnings Protected Card */}
         <Card variant="success">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-gray-600 text-sm font-medium mb-2">Today's Earnings</p>
+              <p className="text-gray-600 text-sm font-medium mb-2">Earnings Protected</p>
               <p className="text-4xl font-bold text-green-600 mb-2">
-                ₹{dashboardData.todayEarnings}
+                ₹{data?.earningsProtected || 0}
               </p>
               <div className="flex items-center gap-1 text-sm text-green-600">
                 <TrendingUp className="w-4 h-4" />
-                <span>+5% from average</span>
+                <span>{data?.claimsCount || 0} Auto-claims paid</span>
               </div>
             </div>
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
@@ -87,18 +126,18 @@ export function Dashboard() {
         </Card>
 
         {/* Coverage Status Card */}
-        <Card variant="success">
+        <Card variant={policy ? "success" : "warning"}>
           <div className="flex items-start justify-between">
             <div>
               <p className="text-gray-600 text-sm font-medium mb-2">
-                Active Coverage
+                Weekly Premium
               </p>
               <p className="text-4xl font-bold text-green-600 mb-2">
-                {dashboardData.coverageAmount}
+                ₹{policy?.weeklyPremium || 0}
               </p>
               <div className="flex items-center gap-1 text-sm text-green-600">
                 <CheckCircle className="w-4 h-4" />
-                <span>Status: Active</span>
+                <span>Status: {policy ? 'Active' : 'No Policy'}</span>
               </div>
             </div>
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
@@ -113,32 +152,41 @@ export function Dashboard() {
         <ChartComponent
           type="bar"
           title="Weekly Earnings vs Disruptions"
-          data={weeklyEarningsData}
+          data={data?.weeklyEarnings || weeklyEarningsData}
           height={350}
         />
-        <p className="text-sm text-gray-600 mt-4 border-t border-gray-200 pt-4">
-          💡 Your earnings vary based on weather and traffic conditions. Higher disruptions correlate with lower daily income.
-        </p>
       </Card>
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold text-gray-800 mb-2">Coverage Update</h3>
-            <p className="text-sm text-gray-600">
-              Your plan renews on March 25, 2025
-            </p>
-          </div>
-          <Button>View Plan</Button>
-        </Card>
+        {mode === "live" ? (
+           <Card className="flex items-center justify-between">
+             <div>
+               <h3 className="font-semibold text-gray-800 mb-2">Coverage Details</h3>
+               <p className="text-sm text-gray-600">
+                 Plan: {policy?.planName || 'Not Selected'}
+               </p>
+             </div>
+             <Button onClick={() => window.location.href='/risk-analysis'}>Upgrade Plan</Button>
+           </Card>
+        ) : (
+           <Card className="flex items-center justify-between border-purple-200 bg-purple-50">
+             <div>
+               <h3 className="font-semibold text-purple-900 mb-2">Run Sandbox Test</h3>
+               <p className="text-sm text-purple-700">
+                 Trigger a simulated rain or pollution event.
+               </p>
+             </div>
+             <Button onClick={() => window.location.href='/simulation'} className="bg-purple-600 hover:bg-purple-700">Test Triggers</Button>
+           </Card>
+        )}
 
         <Card className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-gray-800 mb-2">Recent Claim</h3>
-            <p className="text-sm text-gray-600">March 15 - Heavy Rain - ₹450</p>
+            <h3 className="font-semibold text-gray-800 mb-2">Recent Activity</h3>
+            <p className="text-sm text-gray-600">Check your zero-touch claim history</p>
           </div>
-          <Button variant="secondary">Details</Button>
+          <Button variant="secondary" onClick={() => window.location.href='/claims'}>View Claims</Button>
         </Card>
       </div>
     </div>

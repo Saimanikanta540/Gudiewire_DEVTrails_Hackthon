@@ -1,222 +1,131 @@
 import { Card, Button, AlertBanner } from "../components";
-import { communityData } from "../data/mockData";
-import { Users, Link as LinkIcon, TrendingUp, Award } from "lucide-react";
-import { useState } from "react";
+import { Users, Gift, Share2, Copy, CheckCircle, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { authAPI } from "../api/apiClient";
 
 export function Community() {
+  const user = JSON.parse(localStorage.getItem('user'));
   const [copied, setCopied] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState(null);
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(communityData.referralLink);
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await authAPI.getProfile(user._id || user.id);
+        setProfile(res.data);
+      } catch (err) {
+        console.error("Failed to fetch profile", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [user._id, user.id]);
+
+  const referralLink = `${window.location.origin}/signup?ref=${profile?.referralCode || 'PROMO'}`;
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(referralLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const networkPercentage = (communityData.networkStrength.current / communityData.networkStrength.target) * 100;
+  if (loading) {
+     return (
+       <div className="flex items-center justify-center h-full">
+         <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
+       </div>
+     );
+  }
 
   return (
-    <div className="space-y-6 pb-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Community</h1>
+    <div className="space-y-8">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold text-gray-900">Community & Referrals</h1>
         <p className="text-gray-600">
-          Grow your network and unlock better coverage for everyone
+          Grow the network and lower premiums for everyone. Earn rewards for every friend who gets protected.
         </p>
       </div>
 
-      {/* Key Message */}
-      <Card variant="elevated" className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200">
-        <div className="flex items-start gap-4">
-          <Users className="w-8 h-8 text-green-600 flex-shrink-0 mt-1" />
-          <div>
-            <h2 className="text-xl font-bold text-green-900 mb-2">
-              {communityData.benefits}
-            </h2>
-            <p className="text-green-800">
-              By referring other gig workers, you help build a stronger, more resilient community while enjoying lower premiums and better coverage.
-            </p>
-          </div>
-        </div>
-      </Card>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Referrals Card */}
-        <Card>
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <p className="text-sm text-gray-600 mb-2">Active Referrals</p>
-              <p className="text-4xl font-bold text-blue-600">
-                {communityData.referrals.active}
-              </p>
-            </div>
-            <Award className="w-8 h-8 text-blue-500" />
-          </div>
-          <div className="bg-blue-50 rounded p-3 mb-3">
-            <p className="text-sm text-gray-700">
-              <strong>Referral Earnings:</strong>
-            </p>
-            <p className="text-lg font-bold text-blue-600 mt-1">
-              ₹{communityData.referrals.totalEarned}
-            </p>
-            <p className="text-xs text-gray-600 mt-1">
-              This month bonus: +₹{communityData.referrals.bonus}
-            </p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card variant="elevated" className="bg-gradient-to-br from-blue-600 to-blue-800 text-white border-none">
+          <div className="flex flex-col items-center text-center p-4">
+            <Gift className="w-12 h-12 mb-4 text-blue-200" />
+            <p className="text-blue-100 text-sm font-medium uppercase tracking-wider">Referral Earnings</p>
+            <p className="text-4xl font-bold my-2">₹{profile?.referralEarnings || 0}</p>
+            <p className="text-blue-100 text-xs">Paid instantly on their 1st plan purchase</p>
           </div>
         </Card>
 
-        {/* Network Strength */}
-        <Card>
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <p className="text-sm text-gray-600 mb-2">Network Strength</p>
-              <p className="text-4xl font-bold text-blue-600">
-                {communityData.networkStrength.current}%
-              </p>
-            </div>
-            <TrendingUp className="w-8 h-8 text-blue-500" />
+        <Card variant="elevated">
+          <div className="flex flex-col items-center text-center p-4">
+            <Users className="w-12 h-12 mb-4 text-blue-600" />
+            <p className="text-gray-500 text-sm font-medium uppercase tracking-wider">Friends Invited</p>
+            <p className="text-4xl font-bold my-2 text-gray-900">{profile?.referralCount || 0}</p>
+            <p className="text-gray-500 text-xs">Active members in your network</p>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
-            <div
-              className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500"
-              style={{ width: `${networkPercentage}%` }}
-            ></div>
+        </Card>
+
+        <Card variant="elevated">
+          <div className="flex flex-col items-center text-center p-4">
+            <Share2 className="w-12 h-12 mb-4 text-green-600" />
+            <p className="text-gray-500 text-sm font-medium uppercase tracking-wider">Network Strength</p>
+            <p className="text-4xl font-bold my-2 text-green-600">
+              {Math.min((profile?.referralCount || 0) * 10, 100)}%
+            </p>
+            <p className="text-gray-500 text-xs">Unlocks lower premium rates at 100%</p>
           </div>
-          <p className="text-xs text-gray-600">
-            {communityData.networkStrength.target - communityData.networkStrength.current} more referrals until next level
-          </p>
         </Card>
       </div>
 
-      {/* Referral Program Benefits */}
-      <Card>
-        <h2 className="text-xl font-bold text-gray-800 mb-4">Referral Program</h2>
-        <div className="space-y-4">
-          <div className="flex items-start gap-4">
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold flex-shrink-0">
-              1
+      <Card title="Your Referral Link">
+        <div className="space-y-6">
+          <p className="text-gray-600">
+            Share this link with other delivery partners. When they sign up and buy their first insurance plan, we'll credit <strong>₹200</strong> to your account.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 items-center">
+            <div className="flex-1 w-full bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl px-4 py-3 font-mono text-blue-600 break-all">
+              {referralLink}
             </div>
-            <div>
-              <p className="font-semibold text-gray-800">Share Your Link</p>
-              <p className="text-sm text-gray-600">
-                Send your unique referral link to friends and other delivery partners
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-4">
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold flex-shrink-0">
-              2
-            </div>
-            <div>
-              <p className="font-semibold text-gray-800">They Sign Up</p>
-              <p className="text-sm text-gray-600">
-                They create an account using your referral link on ClimateShield AI
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-4">
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold flex-shrink-0">
-              3
-            </div>
-            <div>
-              <p className="font-semibold text-gray-800">Get Bonus</p>
-              <p className="text-sm text-gray-600">
-                Earn ₹200 for every successful referral (max ₹5,000/month)
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-4">
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold flex-shrink-0">
-              4
-            </div>
-            <div>
-              <p className="font-semibold text-gray-800">Unlock Benefits</p>
-              <p className="text-sm text-gray-600">
-                Every 5 referrals = 1% discount on your premium (max 15%)
-              </p>
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      {/* Referral Link */}
-      <Card variant="elevated">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">Your Referral Link</h2>
-        <div className="bg-gray-50 rounded-lg p-4 border-2 border-dashed border-blue-300 mb-4">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <LinkIcon className="w-5 h-5 text-blue-600 flex-shrink-0" />
-              <code className="text-sm text-gray-700 truncate font-mono bg-white px-2 py-1 rounded">
-                {communityData.referralLink}
-              </code>
-            </div>
-            <Button
-              size="sm"
-              onClick={handleCopyLink}
-              className="flex-shrink-0"
+            <Button 
+              className="flex items-center gap-2 shrink-0 h-12"
+              onClick={copyToClipboard}
             >
-              {copied ? "Copied!" : "Copy"}
+              {copied ? <CheckCircle className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+              {copied ? "Copied!" : "Copy Link"}
             </Button>
           </div>
-        </div>
-        <p className="text-sm text-gray-600">
-          Share this link on WhatsApp, Facebook, Instagram, or email to refer others. Tracking is automatic!
-        </p>
-      </Card>
 
-      {/* Fraud Warning */}
-      <AlertBanner
-        type="warning"
-        title="⚠️ Fraud Protection"
-        message={communityData.fraudWarning}
-        persistent={true}
-      />
-
-      {/* Leaderboard Preview */}
-      <Card>
-        <h2 className="text-xl font-bold text-gray-800 mb-4">Top Referrers</h2>
-        <div className="space-y-3">
-          {[
-            { rank: 1, name: "Priya M.", referrals: 45, earnings: 9000 },
-            { rank: 2, name: "Amit K.", referrals: 38, earnings: 7600 },
-            { rank: 3, name: "Neha S.", referrals: 32, earnings: 6400 },
-            { rank: 4, name: "You", referrals: 12, earnings: 2400, isYou: true },
-          ].map((referrer) => (
-            <div
-              key={referrer.rank}
-              className={`flex items-center justify-between p-3 rounded-lg ${
-                referrer.isYou
-                  ? "bg-blue-50 border border-blue-300"
-                  : "bg-gray-50"
-              }`}
-            >
-              <div className="flex items-center gap-3 flex-1">
-                <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center font-bold text-white">
-                  {referrer.rank === 1 ? "🥇" : referrer.rank === 2 ? "🥈" : referrer.rank === 3 ? "🥉" : referrer.rank}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+             <div className="bg-green-50 p-4 rounded-xl border border-green-100 flex gap-4">
+                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center shrink-0">
+                   <Gift className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-800">{referrer.name}</p>
-                  <p className="text-xs text-gray-600">{referrer.referrals} referrals</p>
+                   <h4 className="font-bold text-gray-900">Invite 5 Friends</h4>
+                   <p className="text-sm text-gray-600">Earn ₹1,000 and unlock the "Community Hero" badge.</p>
                 </div>
-              </div>
-              <p className="font-bold text-gray-800">₹{referrer.earnings}</p>
-            </div>
-          ))}
+             </div>
+             <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 flex gap-4">
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
+                   <Users className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                   <h4 className="font-bold text-gray-900">Grow the Network</h4>
+                   <p className="text-sm text-gray-600">Large communities help us negotiate lower base premiums for everyone.</p>
+                </div>
+             </div>
+          </div>
         </div>
       </Card>
 
-      {/* Call to Action */}
-      <Card variant="elevated" className="text-center">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Ready to Grow?</h2>
-        <p className="text-gray-600 mb-4">
-          Start referring today and help your community thrive
-        </p>
-        <Button size="lg" onClick={handleCopyLink}>
-          Copy & Share Your Link
-        </Button>
-      </Card>
+      <AlertBanner 
+        type="warning"
+        title="Fraud Prevention Alert"
+        message="Creating fake accounts to earn referral bonuses will lead to permanent account suspension and loss of coverage. Our AI monitors GPS and activity patterns for fraud."
+      />
     </div>
   );
 }
