@@ -2,26 +2,43 @@ import { Card, AlertBanner, Button, ChartComponent } from "../components";
 import { weeklyEarningsData } from "../data/mockData";
 import { TrendingUp, Umbrella, CheckCircle, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { analyticsAPI, policyAPI } from "../api/apiClient";
+import { analyticsAPI, policyAPI, authAPI } from "../api/apiClient";
 
 export function Dashboard() {
   const [mode, setMode] = useState("live");
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
   const [policy, setPolicy] = useState(null);
-  const user = JSON.parse(localStorage.getItem('user'));
+  const [riskData, setRiskData] = useState(null);
+  const [error, setError] = useState(null);
+  const user = JSON.parse(localStorage.getItem('user')) || { _id: "dummy-id-for-hackathon" };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [analyticsRes, policyRes] = await Promise.all([
-          analyticsAPI.getWorkerAnalytics(user._id || user.id),
-          policyAPI.getActivePolicy(user._id || user.id)
+        const userId = user._id || user.id;
+        if (!userId || userId === "dummy-id-for-hackathon") {
+           // Not logged in or mock user
+           setLoading(false);
+           return;
+        }
+
+        const [analyticsRes, policyRes, riskRes] = await Promise.all([
+          analyticsAPI.getWorkerAnalytics(userId).catch(err => {
+            if (err.response?.status === 404) throw err;
+            return { data: null };
+          }),
+          policyAPI.getActivePolicy(userId).catch(() => ({ data: null })),
+          authAPI.getRiskScore(userId).catch(() => ({ data: null }))
         ]);
         setData(analyticsRes.data);
         setPolicy(policyRes.data);
+        setRiskData(riskRes.data);
       } catch (err) {
         console.error("Failed to fetch dashboard data", err);
+        if (err.response?.status === 404) {
+          setError("User session invalid. Please log out and log in again.");
+        }
       } finally {
         setLoading(false);
       }
@@ -37,7 +54,19 @@ export function Dashboard() {
     );
   }
 
-  const riskLevel = data?.riskScore > 70 ? "High Risk" : data?.riskScore > 30 ? "Medium Risk" : "Low Risk";
+  if (error) {
+    return (
+      <Card className="max-w-2xl mx-auto mt-10 p-10 text-center">
+        <div className="text-red-500 mb-4 text-5xl">⚠️</div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Session Error</h2>
+        <p className="text-gray-600 mb-8">{error}</p>
+        <Button onClick={() => {
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        }}>Log Out and Try Again</Button>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6 pb-8">
@@ -79,30 +108,51 @@ export function Dashboard() {
       )}
 
       {/* Weather Alert */}
-      {data?.riskScore > 60 && mode === "live" && (
+      {(riskData?.riskLevel === 'HIGH' || riskData?.riskLevel === 'CRITICAL') && mode === "live" && (
         <AlertBanner
           type="warning"
-          title="Heavy Rain Expected 🌧️"
-          message="Parametric triggers are active. Income loss will be automatically covered."
+          title="Severe Conditions Expected 🌧️"
+          message="Parametric triggers are active. Income loss due to extreme conditions will be automatically covered."
           persistent={true}
         />
       )}
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Risk Score Card */}
+        {/* RiskPulse AI Card */}
         <Card variant="elevated">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium mb-2">Risk Score</p>
-              <p className="text-4xl font-bold text-blue-600 mb-2">
-                {data?.riskScore || 0}
-              </p>
-              <p className="text-sm text-gray-600">{riskLevel}</p>
+          <div className="flex flex-col h-full justify-between">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-gray-600 font-bold">RiskPulse AI™</p>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                    riskData?.riskLevel === 'HIGH' ? 'bg-red-100 text-red-700' : 
+                    riskData?.riskLevel === 'CRITICAL' ? 'bg-red-500 text-white' :
+                    riskData?.riskLevel === 'MODERATE' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'
+                  }`}>
+                    {riskData?.riskLevel || 'LOW'} RISK
+                  </span>
+                </div>
+                <p className="text-4xl font-bold text-blue-600 mb-1">
+                  {riskData?.stabilityScore || 0}<span className="text-lg text-gray-500 font-normal">/100</span>
+                </p>
+                <p className="text-sm text-gray-500 font-medium">Stability Score</p>
+              </div>
+              <div className="text-right">
+                <p className="text-gray-500 text-sm font-medium mb-1">Expected Loss</p>
+                <p className="text-2xl font-bold text-red-500">₹{riskData?.expectedLoss || 0}</p>
+              </div>
             </div>
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-              <span className="text-3xl">📊</span>
-            </div>
+            {riskData?.suggestion && (
+              <div className={`p-2 rounded-lg text-xs font-medium mt-auto ${
+                riskData?.riskLevel === 'HIGH' || riskData?.riskLevel === 'CRITICAL' 
+                  ? 'bg-red-50 text-red-700 border border-red-100' 
+                  : 'bg-blue-50 text-blue-700 border border-blue-100'
+              }`}>
+                💡 {riskData.suggestion}
+              </div>
+            )}
           </div>
         </Card>
 

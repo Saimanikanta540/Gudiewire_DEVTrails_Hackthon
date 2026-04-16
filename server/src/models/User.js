@@ -11,7 +11,11 @@ const userSchema = new mongoose.Schema({
   dailyIncome: { type: Number, default: 0 },
   workHours: { type: Number, default: 0 },
   avgIncome: { type: Number, default: 0 },
-  workType: { type: String, enum: ['Zomato', 'Swiggy', 'Amazon', 'Other'], required: true },
+  workType: { type: String, enum: ['Zomato', 'Swiggy', 'Amazon', 'Other', 'Uber', 'Ola', 'Dunzo', 'Porter'], required: true },
+  employmentType: { type: String, enum: ['Full-time', 'Part-time', 'Freelance'], default: 'Full-time' },
+  vehicleType: { type: String, enum: ['2-Wheeler', '3-Wheeler', '4-Wheeler', 'Cycle'], default: '2-Wheeler' },
+  experienceLevel: { type: String, enum: ['Beginner', 'Intermediate', 'Expert'], default: 'Beginner' },
+  hasHealthInsurance: { type: Boolean, default: false },
   riskProfile: { type: String, enum: ['Low', 'Medium', 'High'], default: 'Medium' },
   location: {
     lat: Number,

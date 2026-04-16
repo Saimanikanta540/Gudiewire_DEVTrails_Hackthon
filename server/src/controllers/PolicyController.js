@@ -16,13 +16,15 @@ class PolicyController {
       if (!user) return res.status(404).json({ message: 'User not found' });
 
       const factors = await ActuarialService.getDynamicFactors(user.city, user.zone);
-      const riskScore = ActuarialService.calculateRiskScore(factors);
-      const premium = ActuarialService.calculatePremium(user, riskScore);
+      const riskEvaluation = await ActuarialService.evaluateRisk(factors);
+      const premiumData = ActuarialService.calculatePremium(user, riskEvaluation.risk_impact);
 
       res.json({
         planName,
-        weeklyPremium: premium,
-        riskScore,
+        weeklyPremium: premiumData.weeklyPremium,
+        riskScore: riskEvaluation.risk_impact,
+        stabilityScore: riskEvaluation.stability_score,
+        expectedLoss: premiumData.expectedLoss,
         factors
       });
     } catch (err) {

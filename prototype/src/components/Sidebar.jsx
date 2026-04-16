@@ -5,22 +5,33 @@ import {
   FileText,
   Users,
   User,
+  ShieldCheck,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 export function Sidebar() {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(true);
+  const user = JSON.parse(localStorage.getItem('user'));
 
-  const menuItems = [
-    { path: "/", icon: LayoutDashboard, label: "Dashboard" },
-    { path: "/risk-analysis", icon: BarChart3, label: "Risk Analysis" },
-    { path: "/simulation", icon: Zap, label: "Simulation" },
-    { path: "/claims", icon: FileText, label: "Claims" },
-    { path: "/community", icon: Users, label: "Community" },
-    { path: "/profile", icon: User, label: "Profile" },
-  ];
+  const menuItems = useMemo(() => {
+    if (user?.role === 'Admin') {
+      return [
+        { path: "/admin", icon: ShieldCheck, label: "Admin Panel" },
+        { path: "/profile", icon: User, label: "Profile" },
+      ];
+    }
+
+    return [
+      { path: "/", icon: LayoutDashboard, label: "Dashboard" },
+      { path: "/risk-analysis", icon: BarChart3, label: "Risk Analysis" },
+      { path: "/simulation", icon: Zap, label: "Simulation" },
+      { path: "/claims", icon: FileText, label: "Claims" },
+      { path: "/community", icon: Users, label: "Community" },
+      { path: "/profile", icon: User, label: "Profile" },
+    ];
+  }, [user]);
 
   const isActive = (path) => location.pathname === path;
 

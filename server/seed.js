@@ -38,7 +38,25 @@ const seedData = async () => {
       referralCode: 'BADARI89J2'
     });
     await user.save();
-    console.log('Sample User created.');
+
+    // Create Admin User
+    const adminUser = new User({
+      name: 'Admin',
+      email: 'admin540@gmail.com',
+      password: 'admin540',
+      role: 'Admin',
+      city: 'Hyderabad',
+      zone: 'AdminZone',
+      workType: 'Other',
+      avgIncome: 0,
+      dailyIncome: 0,
+      workHours: 0,
+      riskProfile: 'Low',
+      location: { lat: 17.44, lng: 78.34 },
+      referralCode: 'ADMIN540'
+    });
+    await adminUser.save();
+    console.log('Admin User and Sample User created.');
 
     // 2. Create an Active Policy
     const policy = new Policy({
@@ -106,6 +124,25 @@ const seedData = async () => {
             { step: 'Claim Generated', completed: true },
             { step: 'Fraud Check Passed', completed: true },
             { step: 'Payout Initiated', completed: true }
+        ]
+      },
+      {
+        userId: user._id,
+        policyId: policy._id,
+        eventId: event._id,
+        date: new Date(),
+        event: 'Traffic',
+        eventIcon: '🚗',
+        description: 'Major road closure detected in KPHB. AI stability score dropped to 45%.',
+        lostHours: 2,
+        hourlyRate: 120,
+        payout: 240,
+        status: 'Processing',
+        steps: [
+            { step: 'Event Detected', completed: true },
+            { step: 'Claim Generated', completed: true },
+            { step: 'Fraud Check Passed', completed: true },
+            { step: 'Payout Initiated', completed: false }
         ]
       }
     ];

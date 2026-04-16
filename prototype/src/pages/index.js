@@ -5,3 +5,4 @@ export { Claims } from "./Claims";
 export { Community } from "./Community";
 export { Profile } from "./Profile";
 export { Welcome } from "./Welcome";
+export { default as AdminDashboard } from "./AdminDashboard";

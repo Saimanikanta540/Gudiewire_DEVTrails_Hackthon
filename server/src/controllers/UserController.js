@@ -101,6 +101,33 @@ class UserController {
       res.status(500).json({ error: err.message });
     }
   }
+
+  /**
+   * Get user's RiskPulse AI Stability Score
+   */
+  static async getRiskScore(req, res) {
+    try {
+      const user = await User.findById(req.params.userId);
+      if (!user) return res.status(404).json({ message: 'User not found' });
+
+      // We need ActuarialService for this, so require it inline or at the top
+      const ActuarialService = require('../services/ActuarialService');
+      const factors = await ActuarialService.getDynamicFactors(user.city, user.zone);
+      
+      const riskEvaluation = await ActuarialService.evaluateRisk(factors);
+      const premiumData = ActuarialService.calculatePremium(user, riskEvaluation.risk_impact);
+
+      res.json({
+        stabilityScore: riskEvaluation.stability_score,
+        expectedLoss: premiumData.expectedLoss,
+        riskLevel: riskEvaluation.risk_level,
+        suggestion: riskEvaluation.suggestion,
+        factors
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
 }
 
 module.exports = UserController;

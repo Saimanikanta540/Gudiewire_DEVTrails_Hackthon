@@ -17,6 +17,9 @@ export default function Signup() {
     city: 'Hyderabad',
     zone: 'KPHB',
     workType: 'Swiggy',
+    employmentType: 'Full-time',
+    vehicleType: '2-Wheeler',
+    experienceLevel: 'Beginner',
     avgIncome: 1000,
     referralCode: initialRef
   });
@@ -78,7 +81,7 @@ export default function Signup() {
           <div className="grid grid-cols-2 gap-4">
              <div>
                 <label className="block text-sm font-medium text-gray-700">City</label>
-                <select name="city" onChange={handleChange} className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <select name="city" value={formData.city} onChange={handleChange} className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                    <option>Hyderabad</option>
                    <option>Bangalore</option>
                    <option>Delhi</option>
@@ -86,11 +89,54 @@ export default function Signup() {
              </div>
              <div>
                 <label className="block text-sm font-medium text-gray-700">Work Type</label>
-                <select name="workType" onChange={handleChange} className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <select name="workType" value={formData.workType} onChange={handleChange} className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                    <option>Swiggy</option>
                    <option>Zomato</option>
                    <option>Amazon</option>
+                   <option>Uber</option>
+                   <option>Porter</option>
                 </select>
+             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+             <div>
+                <label className="block text-sm font-medium text-gray-700">Vehicle Type</label>
+                <select name="vehicleType" value={formData.vehicleType} onChange={handleChange} className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                   <option>2-Wheeler</option>
+                   <option>3-Wheeler</option>
+                   <option>4-Wheeler</option>
+                   <option>Cycle</option>
+                </select>
+             </div>
+             <div>
+                <label className="block text-sm font-medium text-gray-700">Experience</label>
+                <select name="experienceLevel" value={formData.experienceLevel} onChange={handleChange} className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                   <option>Beginner</option>
+                   <option>Intermediate</option>
+                   <option>Expert</option>
+                </select>
+             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+             <div>
+                <label className="block text-sm font-medium text-gray-700">Employment</label>
+                <select name="employmentType" value={formData.employmentType} onChange={handleChange} className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                   <option>Full-time</option>
+                   <option>Part-time</option>
+                   <option>Freelance</option>
+                </select>
+             </div>
+             <div>
+                <label className="block text-sm font-medium text-gray-700">Avg Daily Income</label>
+                <input
+                  name="avgIncome"
+                  type="number"
+                  value={formData.avgIncome}
+                  className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  onChange={handleChange}
+                />
              </div>
           </div>
 

@@ -6,22 +6,29 @@ import { authAPI } from "../api/apiClient";
 export function Profile() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        if (!user || (!user._id && !user.id)) {
+          setError("No user found in local storage. Please log in again.");
+          setLoading(false);
+          return;
+        }
         const res = await authAPI.getProfile(user._id || user.id);
         setProfile(res.data);
       } catch (err) {
         console.error("Failed to fetch profile", err);
+        setError("User profile not found. Your session may have expired due to a database reset. Please log out and log in again.");
       } finally {
         setLoading(false);
       }
     };
     fetchProfile();
-  }, [user._id, user.id]);
+  }, [user?._id, user?.id]);
 
   const handleSave = async () => {
     setLoading(true);
@@ -42,13 +49,29 @@ export function Profile() {
     setProfile({ ...profile, [e.target.name]: e.target.value });
   };
 
-  if (loading && !profile) {
+  if (loading) {
      return (
        <div className="flex items-center justify-center h-full">
          <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
        </div>
      );
   }
+
+  if (error) {
+    return (
+      <Card className="max-w-2xl mx-auto mt-10 p-10 text-center">
+        <div className="text-red-500 mb-4 text-5xl">⚠️</div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Profile Error</h2>
+        <p className="text-gray-600 mb-8">{error}</p>
+        <Button onClick={() => {
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        }}>Log Out and Try Again</Button>
+      </Card>
+    );
+  }
+
+  if (!profile) return null;
 
   return (
     <div className="space-y-8 pb-10">

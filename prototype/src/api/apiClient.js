@@ -14,6 +14,7 @@ export const authAPI = {
   login: (credentials) => apiClient.post('/users/login', credentials),
   getProfile: (userId) => apiClient.get(`/users/${userId}`),
   updateProfile: (userId, userData) => apiClient.put(`/users/${userId}`, userData),
+  getRiskScore: (userId) => apiClient.get(`/users/risk-score/${userId}`),
 };
 
 export const policyAPI = {

@@ -17,6 +17,12 @@ export default function Login() {
     e.preventDefault();
     try {
       const res = await authAPI.login(formData);
+      
+      if (res.data.role === 'Admin') {
+        alert('This login is for Partners. Please use the Admin Portal.');
+        return;
+      }
+
       localStorage.setItem('user', JSON.stringify(res.data));
       navigate('/');
     } catch (err) {
@@ -60,10 +66,17 @@ export default function Login() {
               Sign in
             </button>
           </div>
-          <div className="text-center">
-            <Link to="/signup" className="text-blue-600 hover:text-blue-500 text-sm">
-              Don't have an account? Sign up
-            </Link>
+          <div className="text-center space-y-2">
+            <div>
+              <Link to="/signup" className="text-blue-600 hover:text-blue-500 text-sm">
+                Don't have an account? Sign up
+              </Link>
+            </div>
+            <div className="pt-4 border-t border-gray-100">
+              <Link to="/admin-login" className="text-gray-400 hover:text-gray-600 text-xs">
+                Switch to Admin Portal
+              </Link>
+            </div>
           </div>
         </form>
       </div>

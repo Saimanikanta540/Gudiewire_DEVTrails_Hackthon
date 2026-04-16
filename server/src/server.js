@@ -1,6 +1,7 @@
 const app = require('./app');
 const mongoose = require('mongoose');
 const AIService = require('./services/AIService');
+const CronService = require('./services/CronService');
 require('dotenv').config();
 
 const PORT = process.env.PORT || 5000;
@@ -13,6 +14,9 @@ mongoose
     
     // Train the AI Model before starting the server
     await AIService.trainModel();
+
+    // Start Cron Automation
+    CronService.start();
 
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);

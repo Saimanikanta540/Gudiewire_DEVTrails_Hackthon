@@ -16,6 +16,7 @@ app.use('/api/policies', require('./routes/policyRoutes'));
 app.use('/api/claims', require('./routes/claimRoutes'));
 app.use('/api/events', require('./routes/eventRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
 
 // Basic health check
 app.get('/health', (req, res) => {
