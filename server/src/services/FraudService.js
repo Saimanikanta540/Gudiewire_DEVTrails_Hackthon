@@ -1,75 +1,56 @@
 const Claim = require('../models/Claim');
 
 /**
- * Fraud Service - Advanced Detection
- * Implements GPS mismatch, No-activity checks, and Claim frequency validation.
+ * Fraud Service - Advanced Production Layer
+ * Detects location spoofing and inactivity fraud.
  */
 class FraudService {
   /**
-   * Run comprehensive fraud checks
+   * Comprehensive multi-gate fraud check
    */
-  static async checkFraud(claimData) {
-    const { userLocation, eventLocation, userId, lostHours, eventType, userDailyIncome } = claimData;
+  async checkFraud(claimData) {
+    const { userLocation, eventLocation, userId, userPersona } = claimData;
     let isFraud = false;
     const alerts = [];
 
-    // 1. GPS Mismatch Check (Haversine formula approximation)
+    // 1. GPS Mismatch Guard (Haversine Distance)
     if (userLocation && eventLocation) {
-      const distance = this.calculateDistance(userLocation.lat, userLocation.lng, eventLocation.lat, eventLocation.lng);
-      if (distance > 10) { // Event is more than 10km away from registered work zone
+      const dist = this.getDistance(userLocation.lat, userLocation.lng, eventLocation.lat, eventLocation.lng);
+      if (dist > 15) { // 15km threshold
         isFraud = true;
-        alerts.push(`GPS Mismatch: User registered zone is ${distance.toFixed(1)}km away from the event epicenter.`);
+        alerts.push(`GPS Mismatch: Discrepancy of ${dist.toFixed(1)}km detected.`);
       }
     }
 
-    // 2. Claim Frequency Check (Velocity Fraud)
-    // Look for more than 2 claims in the last 7 days
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    
-    const recentClaims = await Claim.countDocuments({
-      userId: userId,
-      createdAt: { $gte: sevenDaysAgo }
-    });
+    // 2. Activity / Inconsistency Check
+    // If a worker has 0 daily hours/income recorded but triggers a "lost hours" claim
+    if (userPersona.workHours === 0 || userPersona.avgIncome === 0) {
+      isFraud = true;
+      alerts.push("Inactivity Fraud: No active work profile data found for today.");
+    }
 
+    // 3. Velocity / Frequent Claim Check
+    const recentClaims = await Claim.countDocuments({
+      userId,
+      createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+    });
     if (recentClaims >= 2) {
       isFraud = true;
-      alerts.push(`High Claim Frequency: User has filed ${recentClaims} claims in the last 7 days.`);
+      alerts.push(`Velocity Attack: ${recentClaims} claims in 24hrs.`);
     }
 
-    // 3. No Activity / Exaggeration Fraud
-    // If they claim they lost 8 hours but usually only work 4, flag it.
-    if (lostHours > 12) {
-      isFraud = true;
-      alerts.push(`Exaggerated Impact: Claimed ${lostHours} lost hours exceeds daily maximum limits.`);
-    }
-
-    return {
-      isFraud,
-      alerts
-    };
+    return { isFraud, alerts };
   }
 
-  /**
-   * Calculate distance between two coordinates in km
-   */
-  static calculateDistance(lat1, lon1, lat2, lon2) {
-    if (!lat1 || !lon1 || !lat2 || !lon2) return 0;
-    const R = 6371; // Radius of the earth in km
-    const dLat = this.deg2rad(lat2 - lat1);
-    const dLon = this.deg2rad(lon2 - lon1); 
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2)
-      ; 
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-    return R * c; 
-  }
-
-  static deg2rad(deg) {
-    return deg * (Math.PI/180);
+  getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   }
 }
 
-module.exports = FraudService;
+module.exports = new FraudService();
